@@ -1,0 +1,149 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rabbitmq-cluster
+  namespace: default
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rabbitmq-cluster
+  namespace: default
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    verbs:
+      - get
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rabbitmq-cluster
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rabbitmq-cluster
+subjects:
+- kind: ServiceAccount
+  name: rabbitmq-cluster
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-cluster-management
+  namespace: default
+  labels:
+    app: rabbitmq-cluster
+spec:
+  ports:
+  - port: 15672
+    name: http
+    nodePort: 32001
+  - port: 5672
+    name: amqp
+    nodePort: 32002
+  selector:
+    app: rabbitmq-cluster
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-cluster
+  namespace: default
+  labels:
+    app: rabbitmq-cluster
+spec:
+  clusterIP: None
+  ports:
+  - port: 5672
+    name: amqp
+  selector:
+    app: rabbitmq-cluster
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: rabbitmq-cluster
+  namespace: default
+spec:
+  serviceName: rabbitmq-cluster
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-cluster
+    spec:
+      serviceAccountName: rabbitmq-cluster
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: rabbitmq-cluster
+        image: rabbitmq:3.8.2
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/rabbitmq
+          - name: rabbitmq-data
+            mountPath: /var/lib/rabbitmq
+        livenessProbe:
+          exec:
+            command: ["rabbitmqctl", "status"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
+        readinessProbe:
+          exec:
+            command: ["rabbitmqctl", "status"]
+          initialDelaySeconds: 20
+          periodSeconds: 60
+          timeoutSeconds: 10
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          protocol: TCP
+          containerPort: 15672
+        - name: amqp
+          protocol: TCP
+          containerPort: 5672
+        env:
+          - name: HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          - name: RABBITMQ_NODENAME
+            value: "rabbit@$(HOSTNAME).rabbitmq-cluster.$(NAMESPACE).svc.cluster.local"
+          - name: RABBITMQ_ERLANG_COOKIE
+            value: "wCvAKsflqHL80MflpcaID2cGP+sPwlYTgvDgO98ojSk="
+      volumes:
+        - name: config-volume
+          configMap:
+            name: rabbitmq-config
+            items:
+            - key: rabbitmq.conf
+              path: rabbitmq.conf
+            - key: enabled_plugins
+              path: enabled_plugins
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+      labels:
+        name: rabbitmq-data
+    spec:
+      storageClassName: managed-nfs-storage
+      accessModes: [ "ReadWriteMany" ]
+      resources:
+        requests:
+          storage: 50G
