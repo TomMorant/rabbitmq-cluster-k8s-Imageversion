@@ -9,14 +9,20 @@
 ```
 2. 创建rbac
    kubectl apply -f rbac.yml（注意以下截图中红框部分要做出对应的修改，name请定义一个唯一值，namespace是对应的命名空间）
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/servicaccounte.png)  
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rolebind.png)
+
 3. 创建deployment
    kubectl apply -f deployment.yml（注意以下截图中红框部分要做出对应的修改，name请和rbac中的name保持一致，namespace是对应的命名空间，数据目录请确保修改正确）
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/deployment.png)
+
 4. 创建class
 
    kubectl apply -f class.yml（注意以下截图中红框部分要做出对应的修改，name请和rbac中的name保持一致，namespace是对应的命名空间）
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/class.png)
 
 ### 二、部署rabbitmq集群
@@ -26,6 +32,7 @@
    kubectl appy -f configmap.yml（注意以下截图中红框部分要做出对应的修改，name请定义一个唯一值，namespace是对应的命名空间）
 ```
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/configmap.png)
+
 2. 执行生成cookie的脚本
 ```
    sh erlang.cookie.sh 
@@ -35,8 +42,11 @@
    kubectl apply -f rabbitmq_cluster.yml（注意以下截图中红框部分要做出对应的修改，name请定义一个唯一值，namespace是对应的命名空间）
 ```
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rabbitmq_cluster.png)
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rabbitmq_cluster-management.png)
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rabbitmq_cluster-statefulset01.png)
+
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rabbitmq_cluster-statefulset02.png)
 
 4. 在控制台将对应的service访问方式修改为loadblace（注意：对应的端口也可以进行修改）
