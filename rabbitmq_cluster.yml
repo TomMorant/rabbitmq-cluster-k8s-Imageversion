@@ -44,9 +44,11 @@ spec:
   - port: 15672
     name: http
     nodePort: 32001
+    targetPort: 15672
   - port: 5672
     name: amqp
     nodePort: 32002
+    targetPort: 5672
   selector:
     app: rabbitmq-cluster
   type: NodePort
