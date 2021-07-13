@@ -8,8 +8,9 @@
 # chmod 777 -R rabbimq
 ```
 2. 创建rbac
+```
    kubectl apply -f rbac.yml（注意以下截图中红框部分要做出对应的修改，name请定义一个唯一值，namespace是对应的命名空间）
-
+```
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/servicaccounte.png)  
 
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rolebind.png)
