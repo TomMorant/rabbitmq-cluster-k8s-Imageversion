@@ -16,14 +16,15 @@
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/rolebind.png)
 
 3. 创建deployment
+```
    kubectl apply -f deployment.yml（注意以下截图中红框部分要做出对应的修改，name请和rbac中的name保持一致，namespace是对应的命名空间，数据目录请确保修改正确）
-
+```
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/deployment.png)
 
 4. 创建class
-
+```
    kubectl apply -f class.yml（注意以下截图中红框部分要做出对应的修改，name请和rbac中的name保持一致，namespace是对应的命名空间）
-
+```
 ![avatar](https://github.com/TomMorant/rabbitmq-cluster-k8s-Imageversion/blob/master/screenshot/class.png)
 
 ### 二、部署rabbitmq集群
